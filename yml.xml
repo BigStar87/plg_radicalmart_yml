@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.9" type="plugin" group="radicalmart" method="upgrade">
+	<name>PLG_RADICALMART_YML</name>
+	<author>Alex</author>
+	<creationDate>October 2023</creationDate>
+	<copyright>Copyright © 2023 Delo Design. All rights reserved.</copyright>
+	<license>https://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+	<authorEmail>AlexLialin@mail.ru</authorEmail>
+	<authorUrl>https://delo-design.ru</authorUrl>
+	<version>0.0.1-dev</version>
+	<description>PLG_RADICALMART_YML_DESCRIPTION</description>
+	<namespace path="src">Joomla\Plugin\RadicalMart\YML</namespace>
+	<scriptfile>script.php</scriptfile>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_radicalmart_yml.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_radicalmart_yml.sys.ini</language>
+		<language tag="ru-RU">ru-RU/ru-RU.plg_radicalmart_yml.ini</language>
+		<language tag="ru-RU">ru-RU/ru-RU.plg_radicalmart_yml.sys.ini</language>
+	</languages>
+	<files>
+		<folder>services</folder>
+		<folder plugin="yml">src</folder>
+	</files>
+</extension>
