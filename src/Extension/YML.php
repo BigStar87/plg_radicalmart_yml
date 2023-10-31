@@ -14,10 +14,11 @@ namespace Joomla\Plugin\RadicalMart\YML\Extension;
 
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Event\SubscriberInterface;
+use Joomla\Plugin\RadicalMart\YML\Console\ExportCommand;
+use Joomla\Registry\Registry;
 
 class YML extends CMSPlugin implements SubscriberInterface
 {
-
 	/**
 	 * Load the language file on instantiation.
 	 *
@@ -46,8 +47,21 @@ class YML extends CMSPlugin implements SubscriberInterface
 	public static function getSubscribedEvents(): array
 	{
 		return [
-
+			'onRadicalMartRegisterCLICommands' => 'onRadicalMartRegisterCLICommands'
 		];
+	}
+
+	/**
+	 * Listener for `onRadicalMartRegisterCLICommands` event.
+	 *
+	 * @param   array     $commands  Updated commands array.
+	 * @param   Registry  $params    RadicalMart params.
+	 *
+	 * @since __DEPLOY_VERSION__
+	 */
+	public function onRadicalMartRegisterCLICommands(array &$commands, Registry $params)
+	{
+		$commands[] = ExportCommand::class;
 	}
 
 }
