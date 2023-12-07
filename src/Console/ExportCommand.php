@@ -99,7 +99,14 @@ class ExportCommand extends AbstractCommand
 	protected ?array $yml_categories = null;
 
 	/**
-	 * Поля которые были добавлены в текущий yml.
+	 *
+	 * @var   array|null
+	 *
+	 * @since __DEPLOY_VERSION__
+	 */
+	protected ?array $_categories = null;
+
+	/**
 	 *
 	 * @var   array|null
 	 *
@@ -123,7 +130,7 @@ class ExportCommand extends AbstractCommand
 	 *
 	 * @since __DEPLOY_VERSION__
 	 */
-	protected ?int $yml_products_limit = 100;
+	protected ?int $yml_products_limit = 5;
 
 	/**
 	 * Internal function to execute the command.
@@ -233,23 +240,38 @@ class ExportCommand extends AbstractCommand
 		$this->yml_products_count++;
 
 		// Получаем категории товара
-		$categories = $this->getCategoriesData($product->categories);
+		$categories = explode(',', $product->categories);
+
+		$onlyCategories = [116, 121, 123, 124];
+		$findCategory = false;
 
 		// Добавляем в массив только нужные
 		$excludesCategories = [];
-		foreach ($categories as $category)
+		foreach ($categories as $catid)
 		{
-			if (in_array((int) $category->id, $excludesCategories))
+			$catid = (int) $catid;
+			if (in_array($catid, $excludesCategories))
 			{
 				continue;
 			}
 
-			if (in_array((int) $category->id, $this->yml_categories))
+			if (in_array($catid, $onlyCategories))
 			{
-				continue;
+				$findCategory = $catid;
+
+				break;
 			}
 		}
 
+		if (empty($findCategory))
+		{
+			$findCategory = (int) $product->category;
+		}
+
+		if (!in_array($findCategory, $this->yml_categories))
+		{
+			$this->yml_categories[] = $findCategory;
+		}
 		// Получаем нужные поля по аналогии с категориями
 
 		// Добавляем товар в yml в offers
@@ -348,7 +370,7 @@ class ExportCommand extends AbstractCommand
 			}
 		}
 
-		$offer->addChild('categoryId', $product->category);
+		$offer->addChild('categoryId', $findCategory);
 
 		$product->media = (new Registry($product->media))->toArray();
 
@@ -469,10 +491,9 @@ class ExportCommand extends AbstractCommand
 	protected function addCategories(): void
 	{
 		$add = [];
-
 		foreach ($this->yml_categories as $pk)
 		{
-			$path = $this->getCategoriesTree($pk->id);
+			$path = $this->getCategoriesTree($pk);
 
 			$categories = $this->getCategoriesData($path);
 
@@ -508,7 +529,7 @@ class ExportCommand extends AbstractCommand
 	 */
 	protected function getCategoriesData($pks): array
 	{
-		if ($this->yml_categories === null || count($this->yml_categories) >= 50) $this->yml_categories = [];
+		if ($this->_categories === null || count($this->_categories) >= 50) $this->_categories = [];
 
 		// Prepare ids
 		$categories = [];
@@ -525,9 +546,9 @@ class ExportCommand extends AbstractCommand
 		$get = [];
 		foreach ($pks as $pk)
 		{
-			if (isset($this->yml_categories[$pk]))
+			if (isset($this->_categories[$pk]))
 			{
-				$categories[$pk] = $this->yml_categories[$pk];
+				$categories[$pk] = $this->_categories[$pk];
 			}
 			else
 			{
@@ -548,8 +569,8 @@ class ExportCommand extends AbstractCommand
 			{
 				foreach ($rows as $row)
 				{
-					$this->yml_categories[$row->id] = $row;
-					$categories[$row->id]           = $row;
+					$this->_categories[$row->id] = $row;
+					$categories[$row->id]        = $row;
 				}
 			}
 		}
