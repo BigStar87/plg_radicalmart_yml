@@ -27,6 +27,7 @@ use Joomla\Filesystem\Path;
 use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -130,7 +131,7 @@ class ExportCommand extends AbstractCommand
 	 *
 	 * @since __DEPLOY_VERSION__
 	 */
-	protected ?int $yml_products_limit = 5;
+	protected ?int $yml_products_limit = null;
 
 	/**
 	 * Internal function to execute the command.
@@ -148,6 +149,11 @@ class ExportCommand extends AbstractCommand
 	{
 		// Configure the Symfony output helper
 		$this->configureSymfonyIO($input, $output);
+
+		$limit = $input->getOption('products_limit');
+
+		$this->yml_products_limit = (!empty($limit)) ? (int) $limit : 0;
+
 		$io = $this->ioStyle;
 
 		try
@@ -243,7 +249,7 @@ class ExportCommand extends AbstractCommand
 		$categories = explode(',', $product->categories);
 
 		$onlyCategories = [116, 121, 123, 124];
-		$findCategory = false;
+		$findCategory   = false;
 
 		// Добавляем в массив только нужные
 		$excludesCategories = [];
@@ -399,7 +405,7 @@ class ExportCommand extends AbstractCommand
 			}
 		}
 
-		if ($this->yml_products_count === $this->yml_products_limit)
+		if ($this->yml_products_limit > 0 && $this->yml_products_count === $this->yml_products_limit)
 		{
 			$this->createYMLFile();
 		}
@@ -687,8 +693,15 @@ class ExportCommand extends AbstractCommand
 	 */
 	protected function configure(): void
 	{
-		// ЗАПОЛНИТЬ ПО НОРМАЛЬНОМУ
 		$this->setDescription('Creates a product yml file for Yandex Market');
+
+		$this->addOption('products_limit', null, InputOption::VALUE_OPTIONAL,
+			'Product limit in file . 0 - unlimited . Default = 0');
+
+		$help = "<info>%command.name%</info> Creates a product yml file for Yandex Market.
+    \nUsage: <info>php %command.full_name% [flags]</info>";
+
+		$this->setHelp($help);
 	}
 
 	/**
